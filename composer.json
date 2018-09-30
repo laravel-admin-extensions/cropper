@@ -1,5 +1,5 @@
 {
-    "name": "laravel-admin-ext/cropper",
+    "name": "laravel-admin-ext-unofficial/cropper",
     "description": "Integrate Cropper into laravel-admin",
     "type": "library",
     "keywords": ["laravel-admin", "extension","cropper","image"],
