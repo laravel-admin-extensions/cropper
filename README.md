@@ -10,7 +10,7 @@ cropper extension for laravel-admin
 ## 安装
 
 ```bash
-composer require laravel-admin-ext-unofficial/cropper
+composer require laravel-admin-ext/cropper
 ```
 
 然后
@@ -39,7 +39,7 @@ php artisan vendor:publish --tag=laravel-admin-cropper
 
 在form表单中使用它：
 ```php
-$form->cropper('content');
+$form->cropper('content','label');
 ```
 默认模式是自由剪裁模式，如果需要强制剪裁尺寸，请使用（注意该尺寸就是最后得到的图片尺寸 非“比例”）
 ```php
@@ -56,7 +56,6 @@ $form->cropper('content','label')->cRatio($width,$height);
 所以你不必去纠结图片的修改 和删除问题。他们都是自动操作的。 
 当然，因为继承了ImageField类，所以也能使用 “intervention/image” 的各种(crop,fit,insert)方法
 （前提是你已经composer require intervention/image）
-
 
 License
 ------------
