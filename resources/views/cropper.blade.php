@@ -30,7 +30,7 @@
     <div class="{{$viewClass['field']}}">
 
         @include('admin::form.error')
-        <div data-id="{{$id}}" class="btn btn-info pull-left cropper-btn">浏览</div>
+        <div data-id="{{$id}}" class="btn btn-info pull-left cropper-btn">Browse</div>
         <input id="{{$id}}-file" {!! $attributes !!} data-id="{{$id}}" class="cropper-file" type="file" accept="image/*"/>
         <img id="{{$id}}-img" {!! $attributes !!} data-id="{{$id}}" class="cropper-img" {!! empty($value) ? '' : 'src="'.old($column, $value).'"'  !!}>
         <input id="{{$id}}-input" type="hidden" name="{{$name}}" value="{{ old($column, $value) }}" {!! $attributes !!} />
