@@ -45,6 +45,22 @@ $form->cropper('content','label');
 ```php
 $form->cropper('content','label')->cRatio($width,$height);
 ```
+
+自定义文件名称（使用 basename 方法，原 name 方法在此插件无效）
+```php
+$form->cropper('content','label')
+    ->basename(function () {
+        return time() . '_' . str_random(10);
+    });
+```
+
+> 使用 basename 方法请返回一个不包含拓展名的自定义文件名称
+
+自定义存储路径
+```php
+$form->cropper('content','label')->move('images/users/avatars');
+```
+
 ## PS （特性预读）
 1、图片并不是预上传的，而是前端转base64之后填入input，服务端再转回图片保存的
 
