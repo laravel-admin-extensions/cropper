@@ -5,11 +5,14 @@ namespace Encore\Cropper;
 use Encore\Admin\Form\Field\ImageField;
 use Encore\Admin\Form\Field\File;
 use Encore\Admin\Admin;
+use Illuminate\Support\Facades\Storage;
 
 class Crop extends File
 {
     //use Field\UploadField;
     use ImageField;
+
+    protected $basename = null;
 
     private $ratioW = 100;
 
@@ -32,52 +35,72 @@ class Crop extends File
     }
 
     /**
-     * [将Base64图片转换为本地图片并保存]
-     * @E-mial wuliqiang_aa@163.com
-     * @TIME   2017-04-07
-     * @WEB    http://blog.iinu.com.cn
-     * @param  [Base64] $base64_image_content [要保存的Base64]
-     * @param  [目录] $path [要保存的路径]
+     * @author Mike <zhengzhe94@gmail.com>
+     * @param $base64ImageContent
+     * @return bool
      */
-    private function base64_image_content($base64_image_content, $path)
+    private function storeBase64Image($base64ImageContent)
     {
         //匹配出图片的格式
-        if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)) {
-            $type = $result[2];
-            $new_file = $path . "/" . date('Ymd', time()) . "/";
-            if (!file_exists($new_file)) {
-                //检查是否有该文件夹，如果没有就创建，并给予最高权限
-                mkdir($new_file, 0755, true);
-            }
-            $new_file = $new_file . md5(microtime()) . ".{$type}";
-            if (file_put_contents($new_file, base64_decode(str_replace($result[1], '', $base64_image_content)))) {
-                return $new_file;
-            } else {
-                return false;
-            }
-        } else {
+        if (! preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64ImageContent, $result)) {
             return false;
         }
+
+        $extension    = $result[2];
+        $directory    = ltrim($this->getDirectory(), '/');
+        $file_name    = $this->getStoreBasename() . '.' . $extension;
+        $file_content = base64_decode(str_replace($result[1], '', $base64ImageContent));
+        $file_path    = $directory . '/' . $file_name;
+
+        Storage::disk(config('admin.upload.disk'))->put($file_path ,  $file_content);
+
+        return $file_path ;
     }
 
+    /**
+     * @author Mike <zhengzhe94@gmail.com>
+     * @param $basename
+     * @return $this
+     */
+    public function basename($basename)
+    {
+        if ($basename) {
+            $this->basename = $basename;
+        }
+
+        return $this;
+    }
+
+    /**
+     * @author Mike <zhengzhe94@gmail.com>
+     * @return mixed|null|string
+     */
+    protected function getStoreBasename()
+    {
+        if ($this->basename instanceof \Closure) {
+            return $this->basename->call($this);
+        }
+
+        if (is_string($this->basename)) {
+            return $this->basename;
+        }
+
+        return md5(uniqid());
+    }
+
+    /**
+     * @author Mike <zhengzhe94@gmail.com>
+     * @param array|\Symfony\Component\HttpFoundation\File\UploadedFile $base64
+     * @return array|bool|mixed|string|\Symfony\Component\HttpFoundation\File\UploadedFile
+     */
     public function prepare($base64)
     {
         //检查是否是base64编码
         if (preg_match('/data:image\/.*?;base64/is',$base64)) {
-            //base64转图片 返回的是绝对路径
-            $imagePath = $this->base64_image_content($base64,public_path('uploads/base64img'));
-            if ($imagePath !== false) {
-                //删除旧图片
-                @unlink(public_path('uploads/').$this->original);
-                //处理图片地址
-                preg_match('/base64img\/.*/is',$imagePath,$matches);
-
-                $this->callInterventionMethods($imagePath);
-
-                return $matches[0];
-            } else {
-                return 'lost';
-            }
+            $imagePath = $this->storeBase64Image($base64);
+            $this->destroy();
+            $this->callInterventionMethods($imagePath);
+            return $imagePath;
         } else {
             preg_match('/base64img\/.*/is',$base64,$matches);
             return isset($matches[0]) ? $matches[0] : $base64;
