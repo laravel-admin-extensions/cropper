@@ -5,6 +5,7 @@ namespace Encore\Cropper;
 use Encore\Admin\Form\Field\ImageField;
 use Encore\Admin\Form\Field\File;
 use Encore\Admin\Admin;
+use Illuminate\Support\Facades\Storage;
 
 class Crop extends File
 {
@@ -43,8 +44,8 @@ class Crop extends File
     {
         //匹配出图片的格式
         if (preg_match('/^(data:\s*image\/(\w+);base64,)/', $base64_image_content, $result)) {
-            $type = $result[2];
-            $new_file = $path . "/" . date('Ymd', time()) . "/";
+            $type     = $result[2];
+            $new_file = $path . date('Ymd', time()) . "/";
             if (!file_exists($new_file)) {
                 //检查是否有该文件夹，如果没有就创建，并给予最高权限
                 mkdir($new_file, 0755, true);
@@ -62,30 +63,33 @@ class Crop extends File
 
     public function prepare($base64)
     {
+
+        $storagePath = Storage::disk('admin')->getDriver()->getAdapter()->getPathPrefix();
+
         //检查是否是base64编码
-        if (preg_match('/data:image\/.*?;base64/is',$base64)) {
+        if (preg_match('/data:image\/.*?;base64/is', $base64)) {
+
+
             //base64转图片 返回的是绝对路径
-            $imagePath = $this->base64_image_content($base64,public_path('uploads/base64img'));
+            $imagePath = $this->base64_image_content($base64, $storagePath);
             if ($imagePath !== false) {
                 //删除旧图片
-                @unlink(public_path('uploads/').$this->original);
-                //处理图片地址
-                preg_match('/base64img\/.*/is',$imagePath,$matches);
+                @unlink($storagePath . '/' . $this->original);
 
                 $this->callInterventionMethods($imagePath);
 
-                return $matches[0];
+                return str_replace($storagePath, '', $imagePath);
             } else {
                 return 'lost';
             }
         } else {
-            preg_match('/base64img\/.*/is',$base64,$matches);
+            preg_match('/base64img\/.*/is', $base64, $matches);
             return isset($matches[0]) ? $matches[0] : $base64;
         }
     }
 
 
-    public function cRatio($width,$height)
+    public function cRatio($width, $height)
     {
         if (!empty($width) and is_numeric($width)) {
             $this->attributes['data-w'] = $width;
@@ -128,10 +132,10 @@ function getMIME(base64)
 
 function cropper(imgSrc,id,w,h)
 {
-    
+
     var cropperImg = '<div id="cropping-div"><img id="cropping-img" src="'+imgSrc+'"><\/div>';
-    
-    
+
+
     //生成弹层模块
     layer.open({
         type: 1,
@@ -195,7 +199,7 @@ $('.cropper-file').change(function(){
     var id = $(this).attr('data-id');
     var w = $(this).attr('data-w');
     var h = $(this).attr('data-h');
-    
+
     //获取input file的files文件数组;
     //这边默认只能选一个，但是存放形式仍然是数组，所以取第一个元素使用[0];
     var file = $(this)[0].files[0];
