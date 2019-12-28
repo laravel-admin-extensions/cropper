@@ -29,6 +29,8 @@ class CropperServiceProvider extends ServiceProvider
 
         }
 
+        $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'admin');
+
         Admin::booting(function () {
             Form::extend('cropper', Crop::class);
         });

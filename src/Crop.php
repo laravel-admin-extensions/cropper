@@ -108,6 +108,12 @@ class Crop extends File
             $this->value = filter_var($this->preview());
         }
 
+
+        $title    = __('admin::cropper.cropper');
+        $crop     = __('admin::cropper.crop');
+        $original = __('admin::cropper.original');
+        $empty    = __('admin::cropper.empty');
+
         $this->script = <<<EOT
 
 //图片类型预存
@@ -135,9 +141,9 @@ function cropper(imgSrc,id,w,h)
         anim: 2,
         resize: false,
         shadeClose: false, //关闭遮罩关闭
-        title: '图片剪裁器',
+        title: '$title',
         content: cropperImg,
-        btn: ['剪裁','原图','清空'],
+        btn: ['$crop','$original','$empty'],
         btn1: function(){
             var cas = cropper.getCroppedCanvas({
                 width: w,
