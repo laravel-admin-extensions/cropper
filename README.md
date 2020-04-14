@@ -3,6 +3,8 @@ cropper extension for laravel-admin
 
 这是一个`laravel-admin`扩展，用来将`cropper`集成进`laravel-admin`的表单中
 
+现在 支持hasMany操作了~，但是hasMany内存在图片冗余问题！这貌似是个底层问题，当然推荐大家在使用hasMany的时候自行维护图片状态。
+
 ## 截图
 
 ![](./demo.jpg)
@@ -13,9 +15,9 @@ cropper extension for laravel-admin
 composer require laravel-admin-ext/cropper
 ```
 
-然后
+然后使用artisan 命令发布资源
 ```bash
-php artisan vendor:publish --tag=laravel-admin-cropper
+php artisan vendor:publish --provider='Encore\Cropper\CropperServiceProvider' --force
 ```
 
 ## 配置
@@ -31,9 +33,20 @@ php artisan vendor:publish --tag=laravel-admin-cropper
             'enable' => true,
         ]
     ]
-
 ```
-
+同时记住必须要配置基础的disks配置，`config/filesystems.php`内添加一项`disk`：
+```
+'disks' => [
+    ... ,
+    // 配置目录可以自己定义
+    'admin' => [
+        'driver' => 'local',
+        'root' => public_path('uploads'),
+        'visibility' => 'public',
+        'url' => env('APP_URL').'/uploads',
+    ],
+],
+```
 
 ## 使用
 
@@ -54,8 +67,14 @@ $form->cropper('content','label')->cRatio($width,$height);
 
 4、扩展继承了laravel-admin 的ImageField类 和File类。 
 所以你不必去纠结图片的修改 和删除问题。他们都是自动操作的。 
-当然，因为继承了ImageField类，所以也能使用 “intervention/image” 的各种(crop,fit,insert)方法
-（前提是你已经composer require intervention/image）
+当然，因为继承了ImageField类，所以也能使用 `intervention/image` 的各种(crop,fit,insert)方法
+（前提是你已经`composer require intervention/image`）
+
+5、现在终于支持hasMany了！！！！同时修复了之前的各种逻辑bug，并且支持本地化翻译，翻译文件发布后位于`resources\lang\zh-CN\admin_cropper.php`，目前支持了中英两种语言，可以自己选择增加别的语言支持。
+
+6、比较糟糕的问题，因为admin框架底层的改动，现在删除条目不会自动删除图片了（代码没读完，和插件本身应该没关系，因为删除条目的时候完全不会调用插件代码，这我也没办法了）
+
+7、未来的更新，将会替换使用框架内提供的sweetalert2 来替换目前 layer以减少前端负担。
 
 License
 ------------

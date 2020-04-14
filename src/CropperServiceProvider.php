@@ -26,7 +26,7 @@ class CropperServiceProvider extends ServiceProvider
                 [$assets => public_path('vendor/laravel-admin-ext/cropper')],
                 'laravel-admin-cropper'
             );
-
+            $this->publishes([__DIR__.'/../resources/lang' => resource_path('lang')], 'laravel-admin-cropper-lang');
         }
 
         Admin::booting(function () {
