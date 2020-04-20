@@ -160,7 +160,9 @@ class Crop extends File
                     //默认关闭框
                     cropperFileE.nextAll('.cropper-img').attr('src',imgSrc);
                     //替换提交数据
-                    cropperFileE.nextAll('.cropper-input').val(imgSrc);
+                    if (cropperFileE.nextAll('.cropper-input').val() == '') {
+                        cropperFileE.nextAll('.cropper-input').val(imgSrc);
+                    }
                     //销毁剪裁器实例
                     cropper.destroy();
                 },
