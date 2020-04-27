@@ -124,8 +124,10 @@ class Crop extends File
             }
         }
 
-        function cropper(imgSrc,cropperFileE,w,h)
+        function cropper(imgSrc,cropperFileE)
         {
+            var w = $(cropperFileE).attr('data-w');
+            var h = $(cropperFileE).attr('data-h');
             var cropperImg = '<div id="cropping-div"><img id="cropping-img" src="'+imgSrc+'"><\/div>';
             //生成弹层模块
             layer.open({
@@ -193,9 +195,6 @@ class Crop extends File
 
         //在input file内容改变的时候触发事件
         $('form').on('change','.cropper-file',function(fileE){
-            var w = $(this).attr('data-w');
-            var h = $(this).attr('data-h');
-            
             //获取input file的files文件数组;
             //这边默认只能选一个，但是存放形式仍然是数组，所以取第一个元素使用[0];
             var file = $(this)[0].files[0];
@@ -208,7 +207,7 @@ class Crop extends File
                 //选择所要显示图片的img，要赋值给img的src就是e中target下result里面的base64编码格式的地址
                 $(this).nextAll('.cropper-img').attr('src',e.target.result);
                 //调取剪切函数（内部包含了一个弹出框）
-                cropper(e.target.result,$(fileE.target),w,h);
+                cropper(e.target.result,$(fileE.target));
                 //向后两轮定位到隐藏起来的输入框体
                 $(this).nextAll('.cropper-input').val(e.target.result);
             };
@@ -217,9 +216,7 @@ class Crop extends File
 
         //点击图片触发弹层
         $('form').on('click','.cropper-img',function(){
-            var w = $(this).attr('data-w');
-            var h = $(this).attr('data-h');
-            cropper($(this).attr('src'),$(this).prevAll('.cropper-file'),w,h);
+            cropper($(this).attr('src'),$(this).prevAll('.cropper-file'));
             return false;
         });
 
