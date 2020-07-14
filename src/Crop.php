@@ -28,7 +28,8 @@ class Crop extends File
 
     protected function preview()
     {
-        return $this->objectUrl($this->value());
+        if(!is_null($this->value()))
+            return $this->objectUrl($this->value());
     }
 
     /**
